@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+	<Document>
+		<name>Black Background</name>
+		<open>1</open>
+		<GroundOverlay>
+			<Icon><href>black.jpg</href></Icon>
+			<LatLonBox><north>90</north><south>-90</south><east>180</east><west>-180</west></LatLonBox>
+		</GroundOverlay>
+		
+
+	</Document>
+</kml>
