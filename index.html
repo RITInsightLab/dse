@@ -59,7 +59,16 @@
                 
 				
                                         // + '<img src="logo.png" height=100px width=200px alt="Banner"/>'
-                //Create the Information Balloon
+
+				showHelp();
+				
+                
+            };
+			
+			function showHelp()
+			{
+			
+				//Create the Information Balloon
                 intBalloon = ge.createHtmlStringBalloon('');
 				intBalloon.setContentString(
                                          '<p>'
@@ -73,8 +82,7 @@
 				intBalloon.setMinHeight(625);
 				intBalloon.setMinWidth(300);
 				
-                
-            };
+			};
 			
 			function closeBalloon()
 			{
@@ -282,10 +290,11 @@
                 shortcut.add("8", function() { loadKMLIndex(8); });
                 shortcut.add("9", function() { loadKMLIndex(9); });
                 
-                //Pressing X will move to the next File
-                //Pressing Z will move to the previous File
-                shortcut.add("z", function() { previousKML(); });
-                shortcut.add("x", function() { nextKML();     });
+                //Pressing up will move to the next File
+                //Pressing down will move to the previous File
+                shortcut.add("up", function() { previousKML(); });
+                shortcut.add("down", function() { nextKML(); });
+                shortcut.add("enter", function() { showHelp(); });
             }
             //Call the Setup Function when the window loads
             window.onload=setup;
