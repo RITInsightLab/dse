@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="_styles.css" media="screen" />
+</head>
+<body  bgcolor="black" onload = "init();instructions()">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="shortcut.js" type="text/javascript"></script>
+<script type = "text/javascript">
+
+	//	Images are courtesy of NASA/SDO and the AIA, EVE, and HMI science teams.
+	var dateInfo;		// date object containing, day month year hour second etc..
+	var yearUsing;		// the current year that we are using for the string
+	var monthUsing;		// the current month that we are using for the string
+	var dayUsing;		// the current day that we are using for the string
+	var yearString;		// the year string
+	var monthString;	// the month string
+	var dayString;		// the day string
+	var waveStringStart;// the begining part to the wave string
+	var waveStringEnd;	// the end part of the wave string
+	var waves = new Array("","_000000_1024_HMIB.jpg","_000000_1024_HMIBC.jpg","_000000_1024_HMIIC.jpg","_000000_1024_HMIIF.jpg", "_000007_1024_4500.jpg");	// the ending of the wave string
+	var currentWaveList;	// the current wave that we are using containing all of the imgs
+	var waveHMIBList = [];	// the HMIB wave imgs
+	var waveHMIBCList = [];	// the HMIBC wave imgs
+	var waveHMIICList = [];	// the HMIIC wave imgs
+	var waveHMIIFList = [];	// the HMIIF wave imgs
+	var wave4500List = [];	// the 4500 wave imgs
+	var wave0335List = [];	// the 0335 wave imgs
+	var wavesLists = [];	// holds all of the wave lists in one list
+	var waveListIndex = 1;	// which img we are using in the  currentWaveList
+	var waveIndex = 1;		// which wave we are using in the wavesLists
+	var mouseDown = 0;      //global variable that tracks whether or not mouse is down or up.
+	var firstPos = 0;       //global variable that tracks where the mouse position when pressed
+	var mouseEvent;
+	var leftEdge;	//the left edge of the image
+	var rightEdge;	//the right edge of the image
+	var allImagesGood = false;
+	var numErrors = 0;
+	
+	function init() 
+	{
+		// setup the sun
+		setupSun();
+		
+		// setup the key inputs
+		setupKeys();
+	} // end init function
+	
+	function setupSun()
+	{
+		// set the date stuff
+		resetDay();
+		
+		// set a new src for the img
+		var sunPic = waveStringStart+yearString+"/"+monthString+"/"+dayString+"/"+yearString+monthString+dayString+waveStringEnd;
+		sunPic = sunPic.toString();	// not really needed
+		
+		// create a new img to start off 
+		var img = new Image();
+		img.src = sunPic;
+		
+		// Populate the arrays
+		var waveList;
+		waveList = waveHMIBList;
+		waveStringEnd = waves[waveIndex];
+		setupWave(waveList);
+		
+		waveList = waveHMIBCList;
+		waveIndex++;
+		waveStringEnd = waves[waveIndex];
+		resetDay()
+		setupWave(waveList);
+		
+		
+		waveList = waveHMIICList;
+		waveIndex++;
+		waveStringEnd = waves[waveIndex];
+		resetDay();
+		setupWave(waveList);
+		
+		
+		waveList = waveHMIIFList;
+		waveIndex++;
+		waveStringEnd = waves[waveIndex];
+		resetDay();
+		setupWave(waveList);
+		
+		
+		waveList = wave4500List;
+		waveIndex++;
+		waveStringEnd = waves[waveIndex];
+		resetDay();
+		setupWave(waveList);
+		
+		/*
+		waveList = wave0335List;
+		waveIndex++;
+		waveStringEnd = waves[waveIndex];
+		resetDay();
+		setupWave(waveList);
+		*/
+		
+		
+		// add the waves to the wavesLists
+		wavesLists.push("");
+		wavesLists.push(waveHMIBList);
+		wavesLists.push(waveHMIBCList);
+		wavesLists.push(waveHMIICList);
+		wavesLists.push(waveHMIIFList);
+		wavesLists.push(wave4500List);
+		//wavesLists.push(wave0335List);
+		
+		// Set the wave list that we are using to the starting wave list
+		waveListIndex = 55;
+		waveIndex = 1;
+		currentWaveList = wavesLists[1];
+		
+		// set the new img to the img from the waveList
+		document.getElementById("date").innerHTML = $(currentWaveList[waveListIndex]).attr('src');
+		document.getElementById("sunImage").src = $(currentWaveList[waveListIndex]).attr('src');
+		
+	
+	} // end setupSun
+	
+	// set the day,month,year to today
+	function resetDay()
+	{
+		
+		// get todays date
+		dateInfo = new Date();
+		var d = dateInfo;
+		
+		// set the year
+		var year = d.getFullYear();
+		yearUsing = year;
+		yearString = year.toString();
+		
+		// set the month (.getMonth() method uses 1-11 to id dates, so adding 1 will give us a number 1-12 for a date)	
+		var month = d.getMonth() + 1;
+		monthUsing = month;
+		monthString;
+		if(month < 10)
+		{
+			monthString = "0" + month.toString();
+		}
+		else
+		{
+			monthString = month.toString();
+		}
+		
+		// Set the day
+		var day = d.getDate();
+		dayUsing = day;
+		dayString;
+		if(day < 10)
+		{
+			dayString = "0" + day.toString();
+		}
+		else
+		{
+			dayString = day.toString();
+		}
+		
+		
+		// set the waveString start and end to the right src
+		waveStringStart = "http://sdo.gsfc.nasa.gov/assets/img/browse/";
+		waveStringEnd = waves[waveIndex];
+	
+	} // end resetDay()
+	
+	function setupWave(waveList)
+	{
+		
+		for (var i = 1; i <= 110; i++)
+		{
+			// Go back one day
+			dayUsing -= 1;
+			
+			// if it enters the new month, fix it
+			if(dayUsing <= 0)
+			{
+				// go back one month
+				monthUsing -= 1;
+				
+				// if it enters the new year, fix it
+				if(monthUsing <= 0)
+				{
+					// go to december
+					monthUsing = 12;
+					// go back a year
+					yearUsing -= 1;
+					// set the new year string
+					yearString = yearUsing.toString();
+				}
+				
+				// set day to 30
+				dayUsing = 30;
+				// month is a single digit so we need to add a 0 to it
+				if(monthUsing < 10)
+				{
+					monthString = "0" + monthUsing.toString();
+				}
+				else
+				{
+					// set the new month string
+					monthString = monthUsing.toString();
+				}
+			}
+			
+			
+			var dayString;
+			// day is a single digit so we need to a add a 0 to it
+			if(dayUsing < 10)
+			{
+				dayString = "0" + dayUsing.toString();
+			}
+			else
+			{
+				// set the new day string
+				dayString = dayUsing.toString();
+			}
+			
+			// create the final src for the img
+			var sunPic = waveStringStart+yearString+"/"+monthString+"/"+dayString+"/"+yearString+monthString+dayString+waveStringEnd;
+			sunPic = sunPic.toString();	// not really needed
+			
+			// create a new img and set its src
+			var img = new Image();
+			img.src = sunPic;
+			
+			waveList.push($(img));
+		}
+		
+	} // end backDay
+		
+	// go back a day 
+	function backDay(waveList)
+	{
+		// increase the index
+		waveListIndex++;
+		if(waveListIndex >= waveList.length)
+		{
+			waveListIndex = 1;
+		}
+		// set the new img to the img from the waveList
+		document.getElementById("date").innerHTML = $(currentWaveList[waveListIndex]).attr('src');
+		document.getElementById("sunImage").src = $(currentWaveList[waveListIndex]).attr('src');
+		document.getElementById("sunImage").onerror = function()
+		{
+			backDay(waveList);
+		}
+		
+	} // end backDay()
+	
+	// go forward a day
+	function forwardDay(waveList)
+	{
+		// decrease the index
+		waveListIndex--;
+		if(waveListIndex <= 0)
+		{
+			waveListIndex = waveList.length;
+		}
+		// set the new img to the img from the waveList
+		document.getElementById("date").innerHTML = $(currentWaveList[waveListIndex]).attr('src');
+		document.getElementById("sunImage").src = $(currentWaveList[waveListIndex]).attr('src');
+		document.getElementById("sunImage").onerror = function()
+		{
+			forwardDay(waveList);
+		}
+	} // end forwardDay(currentWaveList)
+	
+	
+	// go change the wave to go forward in the index
+	function changeWaveForward()
+	{
+		// increase the index
+		waveIndex ++;
+		// if we hit the top go back to the beginning
+		if(waveIndex > waves.length - 1)
+		{
+			waveIndex = 1;
+		}
+		// set the string end to the new one
+		waveStringEnd = waves[waveIndex];
+		// set the current wave list to the new wave list that we are using
+		currentWaveList = wavesLists[waveIndex];
+		
+		// set the img to the new img we are using
+		document.getElementById("date").innerHTML = $(currentWaveList[waveListIndex]).attr('src');
+		document.getElementById("sunImage").src = $(currentWaveList[waveListIndex]).attr('src');
+		document.getElementById("sunImage").onerror = function()
+		{
+			forwardDay(currentWaveList);
+		}
+		
+	} // end changeWaveForward()
+	
+	// go change the wave to go backward in the index
+	function changeWaveBackward()
+	{
+		// decrease the index
+		waveIndex --;
+		// if we hit the top go back to the beginning
+		if(waveIndex <= 0)
+		{
+			waveIndex = waves.length - 1;
+		}
+		// set the string end to the new one
+		waveStringEnd = waves[waveIndex];
+		// set the current wave list to the new wave list that we are using
+		currentWaveList = wavesLists[waveIndex];
+		
+		// set the img to the new img we are using
+		document.getElementById("date").innerHTML = $(currentWaveList[waveListIndex]).attr('src');
+		document.getElementById("sunImage").src = $(currentWaveList[waveListIndex]).attr('src');
+		document.getElementById("sunImage").onerror = function()
+		{
+			backDay(currentWaveList);
+		}		
+		
+	}	// end changeWaveBackWard()
+	
+	// set up the keys to manipulate the sun
+	function setupKeys() 
+	{
+		shortcut.add('left', function() { backDay(currentWaveList); });
+		shortcut.add('up', function() { changeWaveForward(); });
+		shortcut.add('down', function() { changeWaveBackward(); });	
+		shortcut.add('right', function() { forwardDay(currentWaveList); });
+		shortcut.add('enter', function() { instructions(); });
+	}	// end setup
+	
+	function instructions() //simulates mouse click on the button (image)
+	{
+		var rect = getButtonEdges()
+		var x = ((rect.left + rect.right) / 2);
+		var y = ((rect.top + rect.bottom) / 2);
+		click(x,y);
+	}
+	
+	function click(x,y) //simulates a mouse click at the specified coordinates
+	{
+    var ev = document.createEvent("MouseEvent");
+    var el = document.elementFromPoint(x,y);
+    ev.initMouseEvent(
+        "click",
+        true /* bubble */, true /* cancelable */,
+        window, null,
+        x, y, 0, 0, /* coordinates */
+        false, false, false, false, /* modifier keys */
+        0 /*left*/, null
+    );
+    el.dispatchEvent(ev);
+}
+	
+	document.body.onmousedown = function(event) 
+	{ 
+		mouseDown = 1;
+		firstPos = window.event.clientX;
+	}
+	document.body.onmouseup = function(event) 
+	{
+		mouseDown = 0
+		firstPos = 0;
+	}
+	document.body.onmousemove = function(event)
+	{
+		if (mouseDown == 1){
+			moveSun(event);
+		}
+	}
+
+	//moves the sun based on the direction and speed of click-and-drag
+	function moveSun(event)
+	{
+		mouseEvent = event;
+		if (event.clientX >= (rightEdge-150) || event.clientX <= (leftEdge+150))
+			return;
+		
+		if (mouseDown==1 && ((firstPos-window.event.clientX)<0) 
+		&& ((firstPos-window.event.clientX)%10==0) && window.event.clientX < 1085)
+		{
+			forwardDay(currentWaveList);
+			firstPos = window.event.clientX;
+		}
+		if (mouseDown==1 && ((firstPos-window.event.clientX)>0) 
+		&& ((firstPos-window.event.clientX)%10==0) && window.event.clientX > 260)
+		{
+			backDay(currentWaveList);
+			firstPos = window.event.clientX;
+		}
+	}
+
+	function scroll()
+	{
+		var e = mouseEvent;
+		if (e.clientX >= (rightEdge-100) && mouseDown == 1)
+		{
+			forwardDay(currentWaveList);
+		}
+		else if (e.clientX <= (leftEdge+100) && mouseDown == 1)
+		{
+			backDay(currentWaveList);
+		}
+	}
+
+	function getEdges(image)
+	{
+		var rect = image.getBoundingClientRect();
+		leftEdge = rect.left;
+		rightEdge = rect.right;
+	}
+	
+	function getButtonEdges()
+	{
+		var rect = document.getElementById("buttons").getBoundingClientRect();
+		return rect;
+	}
+
+</script>
+
+	<a style="position:fixed; top:0; right:0" href="#futurebox_img1"><img src="buttons.png" id="buttons"/></a>
+		
+	<div class="overlay" id="futurebox_img1">
+		<a href="#close" title="Close"><img src="SuNwiiInstructions.png" width="350" height="300" /></a>
+	</div>
+	
+	<center><img id = "sunImage" border="0" onmousedown = "moveSun(event);interval = setInterval(scroll,100)" 
+	onmouseup = "clearInterval(interval)" draggable ="false" onload = "getEdges(this)" height = "720" width = "672"></center>
+
+<div  align="bottom" style="color:chartreuse" id = "date"></div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+/* Just some base styles not needed for example to function */
+*, html { font-family: Verdana, Arial, Helvetica, sans-serif; }
+html, body { height: 100%; }
+
+body, form, ul, li, p, h1, h2, h3, h4, h5
+{
+	margin: 0;
+	padding: 0;
+}
+body { background-color: #000000; color: #ffffff; }
+img { border: none; }
+p
+{
+	font-size: 1em;
+	margin: 0 0 1em 0;
+}
+	
+/* Futurebox styles */
+ul
+{
+	padding: 60px 0 0 60px;
+}
+	ul li
+	{
+		display: inline-block;
+		float: left;
+		list-style: none;
+		margin: 0 10px 0 0;
+		border: 3px solid #ccc;
+		-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;
+	}
+		ul li a, ul li img { display: block; }
+	ul li:hover { border: 3px solid #1E528C; }
+
+.overlay
+{
+	width: 100%;
+	height: 100%;
+	position: absolute; 
+	top: 0; 
+	left: 0; 
+	display: none; 
+	z-index: 999;
+	background: rgba(0,0,0,0.7);
+}
+	.overlay a
+	{
+		display: table-cell; 
+		vertical-align: middle; 
+		text-align: center;
+	}
+		.overlay img
+		{
+			padding: 10px;
+			-webkit-border-radius: 10px;
+			-moz-border-radius: 10px;
+			background: #ffffff;
+		}
+
+.overlay:target { display: table; }
